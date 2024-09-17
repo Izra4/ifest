@@ -2,6 +2,7 @@ package main
 
 import (
 	"IFEST/internals/config"
+	"IFEST/internals/server"
 )
 
 func main() {
@@ -13,4 +14,6 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	server.Initialize()
 }
