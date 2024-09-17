@@ -5,9 +5,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      - DB_HOST=d${DB_HOST}
+      - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_URL=${DB_URL}
       - DB_PASSWORD=${DB_PASS}
@@ -30,6 +31,11 @@ services:
       - backend
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
 volumes:
   mysql_data:
