@@ -7,19 +7,32 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=db
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=d${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_URL=${DB_URL}
+      - DB_PASSWORD=${DB_PASS}
       - DB_NAME=${DB_NAME}
+      - DB_DRIVER=mysql
+    networks:
+      - backend
+
   db:
     image: mysql:8
+    restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USER}
+      - MYSQL_USER=root
       - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "3306:3306"
 
 volumes:
   mysql_data:
+
+networks:
+  backend:
