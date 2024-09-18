@@ -17,7 +17,7 @@ func ConnectDB() (*sqlx.DB, error) {
 		os.Getenv("DB_NAME"),
 	)
 
-	db, err := sqlx.Connect(os.Getenv("DB_DRIVER"), dsn)
+	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		log.Fatalln("Database connection error: ", err)
 	}
