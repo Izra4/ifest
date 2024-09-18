@@ -19,13 +19,6 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    withEnv([
-                        "DB_USER=${DB_USER}",
-                        "DB_PASS=${DB_PASS}",
-                        "DB_NAME=${DB_NAME}",
-                        "DB_HOST=${DB_HOST}",
-                        "DB_PORT=${DB_PORT}"
-                    ])
                     sh 'docker compose build'
                 }
             }
@@ -34,7 +27,15 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker compose up -d'
+                    withEnv([
+                        "DB_USER=${DB_USER}",
+                        "DB_PASS=${DB_PASS}",
+                        "DB_NAME=${DB_NAME}",
+                        "DB_HOST=${DB_HOST}",
+                        "DB_PORT=${DB_PORT}"
+                    ]) {
+                        sh 'docker compose up -d'
+                    }
                 }
             }
         }
