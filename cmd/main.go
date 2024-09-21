@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
-	//err := config.LoadEnv()
-	//if err != nil {
-	//	return
-	//}
-	_, err := config.ConnectDB()
+	err := config.LoadEnv()
+	if err != nil {
+		return
+	}
+	_, err = config.ConnectDB()
 	if err != nil {
 		return
 	}
