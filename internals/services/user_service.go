@@ -12,6 +12,7 @@ import (
 type IUserService interface {
 	Create(user *domain.UserRequest) (domain.User, error)
 	GetByEmail(email string) (domain.User, error)
+	GetByID(id string) (domain.User, error)
 }
 
 type UserService struct {
@@ -56,4 +57,8 @@ func (u *UserService) Create(user *domain.UserRequest) (domain.User, error) {
 
 func (u *UserService) GetByEmail(email string) (domain.User, error) {
 	return u.userRepository.GetByEmail(email)
+}
+
+func (u *UserService) GetByID(id string) (domain.User, error) {
+	return u.userRepository.GetByID(id)
 }
