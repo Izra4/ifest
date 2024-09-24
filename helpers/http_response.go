@@ -25,3 +25,10 @@ func HttpBadRequest(c *fiber.Ctx, msg string, data ...any) error {
 		"data":    data,
 	})
 }
+
+func HttpNotFound(c *fiber.Ctx, msg string) error {
+	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+		"status":  "failed",
+		"message": msg,
+	})
+}
