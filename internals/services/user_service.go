@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"IFEST/helpers"
@@ -18,7 +18,7 @@ type UserService struct {
 	userRepository repositories.IUserRepository
 }
 
-func NewUserService(userRepository repositories.IUserRepository) IUserService {
+func NewUserService(userRepository repositories.IUserRepository) *UserService {
 	return &UserService{
 		userRepository: userRepository,
 	}
