@@ -2,7 +2,10 @@ package main
 
 import (
 	"IFEST/internals/config"
+	"IFEST/internals/handlers"
+	"IFEST/internals/repositories"
 	"IFEST/internals/server"
+	"IFEST/internals/services"
 )
 
 func main() {
@@ -10,10 +13,18 @@ func main() {
 	if err != nil {
 		return
 	}
-	_, err = config.ConnectDB()
+	db, err := config.ConnectDB()
 	if err != nil {
 		return
 	}
 
-	server.Initialize()
+	userRepository := repositories.NewUserRepository(db)
+
+	userService := services.NewUserService(userRepository)
+
+	userHandler := handlers.NewUserHandler(userService)
+
+	httpServer := server.NewServer(userHandler)
+
+	httpServer.Initialize()
 }
