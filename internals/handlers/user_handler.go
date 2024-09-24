@@ -67,3 +67,14 @@ func (uh *UserHandler) Login(c *fiber.Ctx) error {
 	token, err := helpers.JwtToken(uuidStr)
 	return helpers.HttpSuccess(c, "Login succes", 200, map[string]string{"token": token})
 }
+
+func (uh *UserHandler) Profile(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+
+	userData, err := uh.userService.GetByID(userID)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to get user", err)
+	}
+
+	return helpers.HttpSuccess(c, "succes to get user", 200, userData)
+}
