@@ -32,3 +32,10 @@ func HttpNotFound(c *fiber.Ctx, msg string) error {
 		"message": msg,
 	})
 }
+
+func HttpUnauthorized(c *fiber.Ctx, msg string) error {
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"status":  "failed",
+		"message": msg,
+	})
+}
