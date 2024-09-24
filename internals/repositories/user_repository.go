@@ -8,6 +8,7 @@ import (
 type IUserRepository interface {
 	Create(user *domain.User) (domain.User, error)
 	GetByEmail(email string) (domain.User, error)
+	GetByID(id string) (domain.User, error)
 }
 
 type UserRepository struct {
@@ -43,5 +44,12 @@ func (ur *UserRepository) GetByEmail(email string) (domain.User, error) {
 	var user domain.User
 	query := "SELECT * FROM users WHERE email = $1"
 	err := ur.db.Get(&user, query, email)
+	return user, err
+}
+
+func (ur *UserRepository) GetByID(id string) (domain.User, error) {
+	var user domain.User
+	query := "SELECT * FROM users WHERE id = $1"
+	err := ur.db.Get(&user, query, id)
 	return user, err
 }
