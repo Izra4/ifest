@@ -41,3 +41,29 @@ func (uh *UserHandler) Create(c *fiber.Ctx) error {
 
 	return helpers.HttpSuccess(c, "new user created", 201, user)
 }
+
+func (uh *UserHandler) Login(c *fiber.Ctx) error {
+	var user domain.UserLogin
+	if err := c.BodyParser(&user); err != nil {
+		return helpers.HttpBadRequest(c, err.Error())
+	}
+	if err := uh.validate.Struct(user); err != nil {
+		var errors []string
+		for _, errs := range err.(validator.ValidationErrors) {
+			errors = append(errors, helpers.FormatValidationError(errs))
+			return helpers.HttpBadRequest(c, "failed to login user", errors)
+		}
+	}
+
+	userData, err := uh.userService.GetByEmail(user.Email)
+	if err != nil {
+		return helpers.HttpNotFound(c, "invalid email / password")
+	}
+
+	if err := helpers.CompareHashAndPassword(userData.Password, user.Password); err != nil {
+		return helpers.HttpBadRequest(c, "invalid email / password")
+	}
+	uuidStr := userData.ID.String()
+	token, err := helpers.JwtToken(uuidStr)
+	return helpers.HttpSuccess(c, "Login succes", 200, map[string]string{"token": token})
+}
