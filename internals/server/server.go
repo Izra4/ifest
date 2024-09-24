@@ -1,6 +1,7 @@
 package server
 
 import (
+	"IFEST/internals/core/middleware"
 	"IFEST/internals/handlers"
 	"github.com/gofiber/fiber/v2"
 	"log"
@@ -21,6 +22,7 @@ func (s *Server) Initialize() {
 
 	user := app.Group("/api/user")
 
+	user.Get("/profile", middleware.Authentication(), s.userHandler.Profile)
 	user.Post("/register", s.userHandler.Create)
 	user.Post("/login", s.userHandler.Login)
 
