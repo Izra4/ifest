@@ -22,6 +22,7 @@ func (s *Server) Initialize() {
 	user := app.Group("/api/user")
 
 	user.Post("/register", s.userHandler.Create)
+	user.Post("/login", s.userHandler.Login)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!\nTesting the jenkins here")
