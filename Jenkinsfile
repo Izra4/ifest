@@ -7,6 +7,8 @@ pipeline {
         DB_NAME = credentials('db-name')
         DB_HOST = credentials('db-host')
         DB_PORT = credentials('db-port')
+        JWT_EXP = credentials('jwt-exp')
+        JWT_SECRET = credentials('jwt-secret')
     }
 
     stages {
@@ -32,7 +34,9 @@ pipeline {
                         "DB_PASS=${DB_PASS}",
                         "DB_NAME=${DB_NAME}",
                         "DB_HOST=${DB_HOST}",
-                        "DB_PORT=${DB_PORT}"
+                        "DB_PORT=${DB_PORT}",
+                        "JWT_EXP=${JWT_EXP}",
+                        "JWT_SECRET=${JWT_SECRET}"
                     ]) {
                         sh 'docker compose up -d'
                     }
