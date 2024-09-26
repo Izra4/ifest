@@ -9,9 +9,9 @@ pipeline {
         DB_PORT = credentials('db-port')
         JWT_EXP = credentials('jwt-exp')
         JWT_SECRET = credentials('jwt-secret')
-        CLIENT_ID = credentials("client-id")
-        CLIENT_SECRET = credentials("client-secret")
-        REDIRECT_URL = credentials("redirect-url")
+        CLIENT_ID = credentials('client-id')
+        CLIENT_SECRET = credentials('client-secret')
+        REDIRECT_URL = credentials('redirect-url')
     }
 
     stages {
@@ -25,15 +25,6 @@ pipeline {
             steps {
                 script {
                     sh 'docker compose build'
-                }
-            }
-        }
-
-        stage('Debug Environment') {
-            steps {
-                script {
-                    echo "CLIENT_ID: ${CLIENT_ID}"
-                    echo "REDIRECT_URL: ${REDIRECT_URL}"
                 }
             }
         }
