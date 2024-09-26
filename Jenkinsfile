@@ -29,6 +29,15 @@ pipeline {
             }
         }
 
+        stage('Debug Environment') {
+            steps {
+                script {
+                    echo "CLIENT_ID: ${CLIENT_ID}"
+                    echo "REDIRECT_URL: ${REDIRECT_URL}"
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
