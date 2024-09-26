@@ -20,9 +20,12 @@ func NewServer(userHandler handlers.UserHandler) *Server {
 func (s *Server) Initialize() {
 	app := fiber.New()
 
+	middleware.Cors(app)
 	user := app.Group("/api/user")
 
+	user.Get("/login/google", s.userHandler.GoogleLogin)
 	user.Get("/profile", middleware.Authentication(), s.userHandler.Profile)
+	user.Get("/auth/google/callback", s.userHandler.GoogleCallback)
 	user.Post("/register", s.userHandler.Create)
 	user.Post("/login", s.userHandler.Login)
 
