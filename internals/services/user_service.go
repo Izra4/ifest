@@ -10,7 +10,7 @@ import (
 )
 
 type IUserService interface {
-	Create(user *domain.UserRequest) (domain.User, error)
+	Create(user *domain.UserRequest, isGoogleAuth bool) (domain.User, error)
 	GetByEmail(email string) (domain.User, error)
 	GetByID(id string) (domain.User, error)
 }
@@ -25,7 +25,7 @@ func NewUserService(userRepository repositories.IUserRepository) *UserService {
 	}
 }
 
-func (u *UserService) Create(user *domain.UserRequest) (domain.User, error) {
+func (u *UserService) Create(user *domain.UserRequest, isGoogleAuth bool) (domain.User, error) {
 	ID := uuid.New()
 
 	_, err := u.userRepository.GetByEmail(user.Email)
@@ -43,7 +43,7 @@ func (u *UserService) Create(user *domain.UserRequest) (domain.User, error) {
 		Name:         user.Name,
 		Email:        user.Email,
 		Password:     hashedPass,
-		IsGoogleAuth: false,
+		IsGoogleAuth: isGoogleAuth,
 		CreatedAt:    time.Now(),
 	}
 
