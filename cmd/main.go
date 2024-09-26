@@ -6,8 +6,6 @@ import (
 	"IFEST/internals/repositories"
 	"IFEST/internals/server"
 	"IFEST/internals/services"
-	"log"
-	"os"
 )
 
 func main() {
@@ -19,9 +17,6 @@ func main() {
 	if err != nil {
 		return
 	}
-	log.Println("=============================\n", os.Getenv("CLIENT_ID"), "\n=============================")
-	log.Println("=============================\n", os.Getenv("CLIENT_SECRET"), "\n=============================")
-	log.Println("=============================\n", os.Getenv("REDIRECT_URL"), "\n=============================")
 	userRepository := repositories.NewUserRepository(db)
 
 	userService := services.NewUserService(userRepository)

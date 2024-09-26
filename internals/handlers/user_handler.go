@@ -10,6 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
+	"log"
 	"net/http"
 	"time"
 )
@@ -113,7 +114,7 @@ func (uh *UserHandler) GoogleLogin(c *fiber.Ctx) error {
 func (uh *UserHandler) GoogleCallback(c *fiber.Ctx) error {
 	state := c.Query("state")
 	cookieState := c.Cookies("oauth_state")
-
+	log.Print(state, " || ", cookieState)
 	if state == "" || cookieState == "" {
 		return helpers.HttpsInternalServerError(c, "failed to get state", errors.New("missing state value"))
 	}
