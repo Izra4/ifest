@@ -4,6 +4,7 @@
     <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
       <methods>
         <method importPath="github.com/jmoiron/sqlx" receiver="*DB" name="NamedQuery" />
+        <method importPath="IFEST/internals/services" receiver="IUserService" name="Create" />
       </methods>
     </inspection_tool>
   </profile>
