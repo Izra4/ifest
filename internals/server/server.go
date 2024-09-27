@@ -9,11 +9,13 @@ import (
 
 type Server struct {
 	userHandler handlers.UserHandler
+	docsHandler handlers.DocHandler
 }
 
-func NewServer(userHandler handlers.UserHandler) *Server {
+func NewServer(userHandler handlers.UserHandler, docsHanlder handlers.DocHandler) *Server {
 	return &Server{
 		userHandler: userHandler,
+		docsHandler: docsHanlder,
 	}
 }
 
@@ -22,12 +24,15 @@ func (s *Server) Initialize() {
 
 	middleware.Cors(app)
 	user := app.Group("/api/user")
+	docs := app.Group("/api/document")
 
 	user.Get("/login/google", s.userHandler.GoogleLogin)
 	user.Get("/profile", middleware.Authentication(), s.userHandler.Profile)
 	user.Get("/auth/google/callback", s.userHandler.GoogleCallback)
 	user.Post("/register", s.userHandler.Create)
 	user.Post("/login", s.userHandler.Login)
+
+	docs.Post("/upload", middleware.Authentication(), s.docsHandler.Upload)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!\nTesting the jenkins here")
