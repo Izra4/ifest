@@ -12,6 +12,9 @@ pipeline {
         CLIENT_ID = credentials("client-id")
         CLIENT_SECRET = credentials("client-secret")
         REDIRECT_URL = credentials("redirect-url")
+        AES_KEY = credentials('aes-key')
+        SUPA_URL = credentials('supa-url')
+        SUPA_API = credentials('supa-api')
     }
 
     stages {
@@ -42,7 +45,10 @@ pipeline {
                         "JWT_SECRET=${JWT_SECRET}",
                         "CLIENT_ID=${CLIENT_ID}",
                         "CLIENT_SECRET=${CLIENT_SECRET}",
-                        "REDIRECT_URL=${REDIRECT_URL}"
+                        "REDIRECT_URL=${REDIRECT_URL}",
+                        "AES_KEY=${AES_KEY}",
+                        "SUPA_API=${SUPA_API}",
+                        "SUPA_URL=${SUPA_URL}"
                     ]) {
                         sh 'docker compose up -d'
                     }

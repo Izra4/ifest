@@ -13,6 +13,14 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - JWT_EXP=${JWT_EXP}
+      - JWT_SECRET=${JWT_SECRET}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - REDIRECT_URL=${REDIRECT_URL}
+      - AES_KEY=${AES_KEY}
+      - SUPA_URL=${SUPA_URL}
+      - SUPA_API=${SUPA_API}
     networks:
       - backend
 
