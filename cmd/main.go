@@ -19,12 +19,14 @@ func main() {
 	}
 
 	userRepository := repositories.NewUserRepository(db)
-
 	userService := services.NewUserService(userRepository)
-
 	userHandler := handlers.NewUserHandler(userService)
 
-	httpServer := server.NewServer(userHandler)
+	docsRepository := repositories.NewDocsRepository(db)
+	docsService := services.NewDocsService(docsRepository)
+	docsHandler := handlers.NewDocHandler(docsService)
+
+	httpServer := server.NewServer(userHandler, docsHandler)
 
 	httpServer.Initialize()
 }
