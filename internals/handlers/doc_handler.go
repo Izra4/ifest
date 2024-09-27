@@ -78,3 +78,26 @@ func (dh *DocHandler) Upload(c *fiber.Ctx) error {
 
 	return helpers.HttpSuccess(c, "file uploaded", 201, data)
 }
+
+func (dh *DocHandler) Download(c *fiber.Ctx) error {
+	docsID := c.FormValue("id")
+
+	docs, err := dh.docService.FindByID(docsID)
+	if err != nil {
+		return helpers.HttpNotFound(c, "docs not found")
+	}
+
+	encryptedFile, err := config.SupabaseClient().DownloadFile("docs", docs.Name)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to download file from cloud storage", err)
+	}
+
+	decryptedData, err := helpers.Decrypt(encryptedFile)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to decrypt file", err)
+	}
+
+	c.Set("Content-Disposition", "attachment; filename="+docs.Name)
+	c.Set("Content-Type", "application/octet-stream")
+	return c.Send(decryptedData)
+}
