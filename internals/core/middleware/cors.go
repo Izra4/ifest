@@ -7,7 +7,7 @@ import (
 
 func Cors(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
+		AllowOrigins:     "http://localhost:3000",
 		AllowMethods:     "*",
 		AllowHeaders:     "Content-Type, Origin, Accept, X-Requested-With, Authorization, X-CSRF-Token, Access-Control-Allow-Origin",
 		MaxAge:           86400,

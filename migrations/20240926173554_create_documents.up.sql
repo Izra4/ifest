@@ -3,7 +3,7 @@ CREATE TABLE documents (
     name varchar(255) NOT NULL,
     user_id char(36) NOT NULL,
     type varchar(255) NOT NULL,
-    status status_enum NOT NULL,
+    status int NOT NULL,
     number int NOT NULL,
     created_at timestamp NOT NULL,
     updated_at timestamp NOT NULL,
