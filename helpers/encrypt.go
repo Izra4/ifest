@@ -31,7 +31,7 @@ func Encrypt(data []byte) ([]byte, error) {
 	return cipherText, nil
 }
 
-func Decrypt(cipherText []byte, key []byte) ([]byte, error) {
+func Decrypt(cipherText []byte) ([]byte, error) {
 	block, err := aes.NewCipher(getAESKey())
 	if err != nil {
 		log.Fatalln("failed to create block", err)
