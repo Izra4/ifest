@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	storage_go "github.com/supabase-community/storage-go"
 	"io"
+	"log"
 	"strconv"
 )
 
@@ -31,6 +32,7 @@ func (dh *DocHandler) Upload(c *fiber.Ctx) error {
 
 	file, err := c.FormFile("file")
 	if err != nil {
+		log.Println(err)
 		return helpers.HttpBadRequest(c, "failed to upload file", nil)
 	}
 	numberStr := c.FormValue("number")
@@ -80,8 +82,8 @@ func (dh *DocHandler) Upload(c *fiber.Ctx) error {
 }
 
 func (dh *DocHandler) Download(c *fiber.Ctx) error {
-	docsID := c.FormValue("id")
-
+	docsID := c.Params("id")
+	log.Println(docsID)
 	docs, err := dh.docService.FindByID(docsID)
 	if err != nil {
 		return helpers.HttpNotFound(c, "docs not found")
