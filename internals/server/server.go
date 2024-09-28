@@ -33,6 +33,7 @@ func (s *Server) Initialize() {
 	user.Post("/login", s.userHandler.Login)
 
 	docs.Post("/upload", middleware.Authentication(), s.docsHandler.Upload)
+	docs.Get("/download/:id", s.docsHandler.Download)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!\nTesting the jenkins here")
