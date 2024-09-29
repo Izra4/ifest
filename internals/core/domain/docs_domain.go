@@ -11,7 +11,7 @@ type Docs struct {
 	Name      string    `json:"name" db:"name"`
 	Type      string    `json:"type" db:"type"`
 	Status    int       `json:"status" db:"status"`
-	Number    int       `json:"number" db:"number"`
+	Number    string    `json:"number" db:"number"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -19,6 +19,6 @@ type Docs struct {
 type DocsUpload struct {
 	UserID uuid.UUID `json:"user_id" validate:"required"`
 	Name   string    `json:"name" validate:"required"`
-	Number int       `json:"number" validate:"required"`
+	Number string    `json:"number" validate:"required"`
 	Type   string    `json:"type" validate:"required"`
 }
