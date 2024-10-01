@@ -2,13 +2,12 @@ package repositories
 
 import (
 	"IFEST/internals/core/domain"
-	"database/sql"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type IUserDocRepository interface {
-	Create(userID, docID uuid.UUID) (sql.Result, error)
+	Create(accesReq *domain.AccessReq) (domain.AccessReq, error)
 	FindByUserID(userID uuid.UUID) ([]domain.Docs, error)
 	FindByDocID(docID uuid.UUID) ([]domain.User, error)
 }
@@ -21,15 +20,22 @@ func NewUserDocRepository(db *sqlx.DB) IUserDocRepository {
 	return &UserDocRepository{db: db}
 }
 
-func (u UserDocRepository) Create(userID, docID uuid.UUID) (sql.Result, error) {
-	query := `INSERT INTO user_doc (user_id, doc_id) VALUES ($1, $2)`
-
-	result, err := u.db.Exec(query, userID, docID)
+func (u UserDocRepository) Create(accesReq *domain.AccessReq) (domain.AccessReq, error) {
+	query := `
+		INSERT INTO user_doc_access(user_id, doc_id) 
+		VALUES (:user_id, :doc_id)
+		RETURNING user_id, doc_id
+	`
+	result, err := u.db.NamedQuery(query, accesReq)
 	if err != nil {
-		return result, err
+		return domain.AccessReq{}, err
 	}
 
-	return result, nil
+	if result.Next() {
+		err = result.StructScan(accesReq)
+	}
+
+	return *accesReq, nil
 }
 
 func (u UserDocRepository) FindByUserID(userID uuid.UUID) ([]domain.Docs, error) {
