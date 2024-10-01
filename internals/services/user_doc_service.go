@@ -3,12 +3,11 @@ package services
 import (
 	"IFEST/internals/core/domain"
 	"IFEST/internals/repositories"
-	"database/sql"
 	"github.com/google/uuid"
 )
 
 type IUserDocService interface {
-	Create(userID, docID uuid.UUID) (sql.Result, error)
+	Create(userID, docID uuid.UUID) (domain.AccessReq, error)
 	FindByUserID(userID uuid.UUID) ([]domain.Docs, error)
 	FindByDocID(docID uuid.UUID) ([]domain.User, error)
 }
@@ -23,8 +22,14 @@ func NewUserDocService(userDocRepository repositories.IUserDocRepository) *UserD
 	}
 }
 
-func (u *UserDocService) Create(userID, docID uuid.UUID) (sql.Result, error) {
-	return u.userDocRepository.Create(userID, docID)
+func (u *UserDocService) Create(userID, docID uuid.UUID) (domain.AccessReq, error) {
+
+	req := domain.AccessReq{
+		DocID:  docID,
+		UserID: userID,
+	}
+
+	return u.userDocRepository.Create(&req)
 }
 
 func (u *UserDocService) FindByUserID(userID uuid.UUID) ([]domain.Docs, error) {
