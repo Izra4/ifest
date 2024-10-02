@@ -21,6 +21,8 @@ services:
       - AES_KEY=${AES_KEY}
       - SUPA_URL=${SUPA_URL}
       - SUPA_API=${SUPA_API}
+      - EMAIL=${EMAIL}
+      - EMAIL_PASS=${EMAIL_PASS}
     networks:
       - backend
 

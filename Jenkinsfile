@@ -15,6 +15,8 @@ pipeline {
         AES_KEY = credentials('aes-key')
         SUPA_URL = credentials('supa-url')
         SUPA_API = credentials('supa-api')
+        EMAIL = credentials('email')
+        EMAIL_PASS = credentials('email-pass')
     }
 
     stages {
