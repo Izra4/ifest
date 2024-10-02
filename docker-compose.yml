@@ -23,6 +23,7 @@ services:
       - SUPA_API=${SUPA_API}
       - EMAIL=${EMAIL}
       - EMAIL_PASS=${EMAIL_PASS}
+      - BASE_URL=${BASE_URL}
     networks:
       - backend
 

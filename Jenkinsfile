@@ -17,6 +17,7 @@ pipeline {
         SUPA_API = credentials('supa-api')
         EMAIL = credentials('email')
         EMAIL_PASS = credentials('email-pass')
+        BASE_URL = credentials('base-url')
     }
 
     stages {
@@ -50,7 +51,10 @@ pipeline {
                         "REDIRECT_URL=${REDIRECT_URL}",
                         "AES_KEY=${AES_KEY}",
                         "SUPA_API=${SUPA_API}",
-                        "SUPA_URL=${SUPA_URL}"
+                        "SUPA_URL=${SUPA_URL}",
+                        "EMAIL=${EMAIL}",
+                        "EMAIL_PASS=${EMAIL_PASS}",
+                        "BASE_URL=${BASE_URL}"
                     ]) {
                         sh 'docker compose up -d'
                     }
