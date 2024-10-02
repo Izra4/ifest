@@ -46,6 +46,7 @@ func (dr *DocsRepository) FindByID(id string) (domain.DocumentAccessInfo, error)
 	query := `
 	SELECT 
 		d.id AS document_id,
+		d.user_id AS user_id,
 		d.name AS document_name,
 		d.type AS document_type,
 		d.status AS document_status,
