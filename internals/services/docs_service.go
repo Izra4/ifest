@@ -9,7 +9,7 @@ import (
 
 type IDocsService interface {
 	Upload(docs domain.DocsUpload) (domain.Docs, error)
-	FindByID(id string) (domain.Docs, error)
+	FindByID(id string) (domain.DocumentAccessInfo, error)
 	FindByUserID(id string) ([]domain.Docs, error)
 }
 
@@ -44,7 +44,7 @@ func (d *DocsService) Upload(docs domain.DocsUpload) (domain.Docs, error) {
 	return result, nil
 }
 
-func (d *DocsService) FindByID(id string) (domain.Docs, error) {
+func (d *DocsService) FindByID(id string) (domain.DocumentAccessInfo, error) {
 	return d.docsRepository.FindByID(id)
 }
 
