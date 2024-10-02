@@ -1,15 +1,22 @@
 package services
 
 import (
+	email2 "IFEST/helpers/email"
 	"IFEST/internals/core/domain"
 	"IFEST/internals/repositories"
+	"fmt"
 	"github.com/google/uuid"
+	"time"
 )
 
 type IUserDocService interface {
-	Create(userID, docID uuid.UUID) (domain.AccessReq, error)
+	Create(userID, docID uuid.UUID, email, name string) (domain.AccessReq, error)
 	FindByUserID(userID uuid.UUID) ([]domain.Docs, error)
 	FindByDocID(docID uuid.UUID) ([]domain.User, error)
+	FindByToken(token string) (domain.AccessReq, error)
+	DeleteAccessByToken(token string) error
+	DeleteAccessByUserID(id uuid.UUID) error
+	DeleteExpired() error
 }
 
 type UserDocService struct {
@@ -22,13 +29,19 @@ func NewUserDocService(userDocRepository repositories.IUserDocRepository) *UserD
 	}
 }
 
-func (u *UserDocService) Create(userID, docID uuid.UUID) (domain.AccessReq, error) {
+func (u *UserDocService) Create(userID, docID uuid.UUID, email, name string) (domain.AccessReq, error) {
+	token := uuid.New().String()
+	expiredAt := time.Now().Add(time.Minute * 2)
 
 	req := domain.AccessReq{
-		DocID:  docID,
-		UserID: userID,
+		DocID:      docID,
+		UserID:     userID,
+		Token:      token,
+		Expired_at: expiredAt,
 	}
 
+	downloadLink := fmt.Sprintf("http://localhost:3000/api/document/download?token=%s", token)
+	email2.SendDownloadLink(email, name, downloadLink)
 	return u.userDocRepository.Create(&req)
 }
 
@@ -38,4 +51,20 @@ func (u *UserDocService) FindByUserID(userID uuid.UUID) ([]domain.Docs, error) {
 
 func (u *UserDocService) FindByDocID(docID uuid.UUID) ([]domain.User, error) {
 	return u.userDocRepository.FindByDocID(docID)
+}
+
+func (u *UserDocService) FindByToken(token string) (domain.AccessReq, error) {
+	return u.userDocRepository.FindByToken(token)
+}
+
+func (u *UserDocService) DeleteAccessByToken(token string) error {
+	return u.userDocRepository.DeleteAccessByToken(token)
+}
+
+func (u *UserDocService) DeleteAccessByUserID(id uuid.UUID) error {
+	return u.userDocRepository.DeleteAccessByUserID(id)
+}
+
+func (u *UserDocService) DeleteExpired() error {
+	return u.userDocRepository.DeleteExpired()
 }
