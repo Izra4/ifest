@@ -13,6 +13,7 @@ import (
 	storage_go "github.com/supabase-community/storage-go"
 	"io"
 	"log"
+	"strings"
 )
 
 type DocHandler struct {
@@ -83,7 +84,22 @@ func (dh *DocHandler) Upload(c *fiber.Ctx) error {
 	return helpers.HttpSuccess(c, "file uploaded", 201, data)
 }
 
-func (dh *DocHandler) Download(c *fiber.Ctx) error {
+func (dh *DocHandler) GetAll(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	log.Println(userID)
+	result, err := dh.docService.FindByUserID(userID)
+	if err != nil {
+		return helpers.HttpNotFound(c, "docs not found")
+	}
+
+	return helpers.HttpSuccess(c, "success to get data", 200, result)
+}
+
+func (dh *DocHandler) GetByID(c *fiber.Ctx) error {
+	userIDStr := c.Locals("userID").(string)
+	if userIDStr == "" {
+		return helpers.HttpUnauthorized(c, "unauthorized")
+	}
 	docsID := c.Params("id")
 	log.Println(docsID)
 	docs, err := dh.docService.FindByID(docsID)
@@ -91,28 +107,32 @@ func (dh *DocHandler) Download(c *fiber.Ctx) error {
 		return helpers.HttpNotFound(c, "docs not found")
 	}
 
-	encryptedFile, err := config.SupabaseClient().DownloadFile("docs", docs.Name)
+	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		return helpers.HttpsInternalServerError(c, "failed to download file from cloud storage", err)
+		return helpers.HttpsInternalServerError(c, "failed to parse user id", err)
 	}
 
-	decryptedData, err := helpers.Decrypt(encryptedFile)
-	if err != nil {
-		return helpers.HttpsInternalServerError(c, "failed to decrypt file", err)
+	if docs.UserID != userID {
+		log.Println(docs.UserID, " || ", userID)
+		return helpers.HttpUnauthorized(c, "unauthorized")
 	}
 
-	c.Set("Content-Disposition", "attachment; filename="+docs.Name)
-	c.Set("Content-Type", "application/octet-stream")
-	return c.Send(decryptedData)
-}
-
-func (dh *DocHandler) GetAll(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(string)
-
-	result, err := dh.docService.FindByUserID(userID)
-	if err != nil {
-		return helpers.HttpNotFound(c, "docs not found")
+	emails := strings.Split(docs.AccessEmails, ", ")
+	var filteredEmails []string
+	if emails[0] != "" {
+		for _, data := range emails {
+			filteredEmails = append(filteredEmails, data)
+		}
 	}
 
-	return helpers.HttpSuccess(c, "success to get data", 200, result)
+	fixed := domain.DocumentAccessInfo{
+		DocumentID:     docs.DocumentID,
+		DocumentName:   docs.DocumentName,
+		DocumentType:   docs.DocumentType,
+		DocumentStatus: docs.DocumentStatus,
+		AccessCount:    docs.AccessCount,
+		FixedEmails:    filteredEmails,
+	}
+
+	return helpers.HttpSuccess(c, "success to get data", 200, fixed)
 }
