@@ -6,6 +6,7 @@ import (
 	"IFEST/internals/repositories"
 	"fmt"
 	"github.com/google/uuid"
+	"os"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func (u *UserDocService) Create(userID, docID uuid.UUID, email, name string) (do
 		Expired_at: expiredAt,
 	}
 
-	downloadLink := fmt.Sprintf("http://localhost:3000/api/document/download?token=%s", token)
+	downloadLink := fmt.Sprintf("%s/api/document/download?token=%s", os.Getenv("BASE_URL"), token)
 	email2.SendDownloadLink(email, name, downloadLink)
 	return u.userDocRepository.Create(&req)
 }
