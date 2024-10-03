@@ -13,6 +13,7 @@ import (
 	storage_go "github.com/supabase-community/storage-go"
 	"io"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -135,4 +136,76 @@ func (dh *DocHandler) GetByID(c *fiber.Ctx) error {
 	}
 
 	return helpers.HttpSuccess(c, "success to get data", 200, fixed)
+}
+
+func (dh *DocHandler) Update(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	if userID == "" {
+		return helpers.HttpUnauthorized(c, "unauthorized")
+	}
+
+	docIDStr := c.Params("id")
+	if docIDStr == "" {
+		return helpers.HttpBadRequest(c, "document id is required", nil)
+	}
+
+	doc, err := dh.docService.FindByID(docIDStr)
+	if err != nil {
+		return helpers.HttpNotFound(c, "document not found")
+	}
+
+	var data domain.DocsUpdateRequest
+	if err := c.BodyParser(&data); err != nil {
+		return helpers.HttpBadRequest(c, "failed to parse request body", err)
+	}
+
+	if err := dh.validator.Struct(data); err != nil {
+		var errors []string
+		for _, errs := range err.(validator.ValidationErrors) {
+			errors = append(errors, helpers.FormatValidationError(errs))
+		}
+		return helpers.HttpBadRequest(c, "failed to binding request", errors)
+	}
+	docID, err := uuid.Parse(docIDStr)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to parse document id", err)
+	}
+
+	if data.Name == "" {
+		data.Name = doc.DocumentName
+	}
+	if data.Type == "" {
+		data.Number = doc.DocumentType
+	}
+
+	parsedDocStatus := strconv.Itoa(doc.DocumentStatus)
+
+	if data.Status == "" {
+		data.Status = parsedDocStatus
+	}
+
+	if data.Number == "" {
+		data.Number = doc.DocumentNumber
+	} else {
+		encrypt, err := helpers.Encrypt([]byte(data.Number))
+		if err != nil {
+			return helpers.HttpsInternalServerError(c, "failed to encrypt document number", err)
+		}
+		data.Number = base64.StdEncoding.EncodeToString(encrypt)
+	}
+
+	dataInput := domain.DocsUpdateRequest{
+		ID:     doc.DocumentID,
+		Name:   data.Name,
+		Type:   data.Type,
+		Status: data.Status,
+		Number: data.Number,
+	}
+
+	err = dh.docService.Update(docID, dataInput)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to update document", err)
+	}
+
+	return helpers.HttpSuccess(c, "document updated successfully", 200, nil)
 }
