@@ -15,6 +15,7 @@ type Server struct {
 	docsHandler     handlers.DocHandler
 	userDocsHandler handlers.UserDocHandler
 	cronJob         handlers.CronJob
+	reportHandler   handlers.ReportHandler
 }
 
 func NewServer(
@@ -22,12 +23,14 @@ func NewServer(
 	docsHanlder handlers.DocHandler,
 	userDocsHandler handlers.UserDocHandler,
 	cronJob handlers.CronJob,
+	reportHandler handlers.ReportHandler,
 ) *Server {
 	return &Server{
 		userHandler:     userHandler,
 		docsHandler:     docsHanlder,
 		userDocsHandler: userDocsHandler,
 		cronJob:         cronJob,
+		reportHandler:   reportHandler,
 	}
 }
 
@@ -41,6 +44,7 @@ func (s *Server) Initialize() {
 	user := app.Group("/api/user")
 	docs := app.Group("/api/document")
 	access := docs.Group("/access")
+	reports := app.Group("/api/reports")
 
 	user.Get("/login/google", s.userHandler.GoogleLogin)
 	user.Get("/profile", middleware.Authentication(), s.userHandler.Profile)
@@ -56,6 +60,12 @@ func (s *Server) Initialize() {
 
 	access.Post("/:id", middleware.Authentication(), s.userDocsHandler.Create)
 	access.Delete("/delete", middleware.Authentication(), s.userDocsHandler.DeleteAccess)
+
+	reports.Post("/create", middleware.Authentication(), s.reportHandler.CreateReport)
+	reports.Get("/", s.reportHandler.GetReportsByUserID)
+	reports.Get("/:id", s.reportHandler.GetReportByID)
+	reports.Put("/:id", s.reportHandler.UpdateReport)
+	reports.Delete("/:id", s.reportHandler.DeleteReport)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!\nTesting the jenkins here")

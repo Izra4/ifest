@@ -192,8 +192,6 @@ func (udh *UserDocHandler) DeleteAccess(c *fiber.Ctx) error {
 		for _, errs := range err.(validator.ValidationErrors) {
 			errors = append(errors, helpers.FormatValidationError(errs))
 		}
-		log.Println(deleteRequest.DocID)
-		log.Println(deleteRequest.AcessorID)
 		return helpers.HttpBadRequest(c, "failed to binding request", errors)
 	}
 
