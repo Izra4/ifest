@@ -38,9 +38,13 @@ func main() {
 	userDocsService := services.NewUserDocService(userDocsRepository)
 	userDocsHandler := handlers.NewUserDocHandler(userDocsService, userService, docsService, bc)
 
+	reportRepository := repositories.NewReportsRepository(db)
+	reportService := services.NewReportsService(reportRepository)
+	reportHandler := handlers.NewReportHandler(reportService)
+
 	cronJob := handlers.NewCronJob(userDocsService)
 
-	httpServer := server.NewServer(userHandler, docsHandler, userDocsHandler, cronJob)
+	httpServer := server.NewServer(userHandler, docsHandler, userDocsHandler, cronJob, reportHandler)
 
 	httpServer.Initialize()
 }

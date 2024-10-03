@@ -16,7 +16,7 @@ type IUserDocService interface {
 	FindByDocID(docID uuid.UUID) ([]domain.User, error)
 	FindByToken(token string) (domain.AccessReq, error)
 	DeleteAccessByToken(token string) error
-	DeleteAccessByUserID(id uuid.UUID) error
+	DeleteAccessByUserID(userID, docID uuid.UUID) error
 	DeleteExpired() error
 }
 
@@ -62,8 +62,8 @@ func (u *UserDocService) DeleteAccessByToken(token string) error {
 	return u.userDocRepository.DeleteAccessByToken(token)
 }
 
-func (u *UserDocService) DeleteAccessByUserID(id uuid.UUID) error {
-	return u.userDocRepository.DeleteAccessByUserID(id)
+func (u *UserDocService) DeleteAccessByUserID(userID, docID uuid.UUID) error {
+	return u.userDocRepository.DeleteAccessByUserID(userID, docID)
 }
 
 func (u *UserDocService) DeleteExpired() error {

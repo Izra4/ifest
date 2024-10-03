@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"IFEST/internals/core/domain"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log"
 )
@@ -10,6 +11,7 @@ type IDocsRepository interface {
 	Upload(docs domain.Docs) (domain.Docs, error)
 	FindByID(id string) (domain.DocumentAccessInfo, error)
 	FindByUserID(id string) ([]domain.Docs, error)
+	Update(id uuid.UUID, data domain.DocsUpdateRequest) error
 }
 
 type DocsRepository struct {
@@ -87,4 +89,33 @@ func (dr *DocsRepository) FindByUserID(id string) ([]domain.Docs, error) {
 	var data []domain.Docs
 	err := dr.db.Select(&data, query, id)
 	return data, err
+}
+
+func (dr *DocsRepository) Update(id uuid.UUID, data domain.DocsUpdateRequest) error {
+	query := `
+		UPDATE documents 
+		SET 
+			name = :name,
+			type = :type,
+			status = :status,
+			number = :number,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = :id
+		RETURNING id, user_id, name, type, status, number, created_at, updated_at
+	`
+	data.ID = id
+
+	res, err := dr.db.NamedQuery(query, &data)
+	if err != nil {
+		return err
+	}
+
+	if res.Next() {
+		err = res.StructScan(&data)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -11,6 +11,7 @@ type IDocsService interface {
 	Upload(docs domain.DocsUpload) (domain.Docs, error)
 	FindByID(id string) (domain.DocumentAccessInfo, error)
 	FindByUserID(id string) ([]domain.Docs, error)
+	Update(id uuid.UUID, data domain.DocsUpdateRequest) error
 }
 
 type DocsService struct {
@@ -50,4 +51,8 @@ func (d *DocsService) FindByID(id string) (domain.DocumentAccessInfo, error) {
 
 func (d *DocsService) FindByUserID(id string) ([]domain.Docs, error) {
 	return d.docsRepository.FindByUserID(id)
+}
+
+func (d *DocsService) Update(id uuid.UUID, data domain.DocsUpdateRequest) error {
+	return d.docsRepository.Update(id, data)
 }
