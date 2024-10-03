@@ -11,6 +11,7 @@ type User struct {
 	Email        string    `db:"email" json:"email"`
 	Password     string    `db:"password" json:"-"`
 	IsGoogleAuth bool      `db:"isgoogleauth" json:"isGoogleAuth"`
+	Role         string    `db:"role" json:"role"`
 	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
 	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
 }

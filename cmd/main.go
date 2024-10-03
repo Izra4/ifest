@@ -32,7 +32,7 @@ func main() {
 
 	docsRepository := repositories.NewDocsRepository(db)
 	docsService := services.NewDocsService(docsRepository)
-	docsHandler := handlers.NewDocHandler(docsService)
+	docsHandler := handlers.NewDocHandler(docsService, userService)
 
 	userDocsRepository := repositories.NewUserDocRepository(db)
 	userDocsService := services.NewUserDocService(userDocsRepository)

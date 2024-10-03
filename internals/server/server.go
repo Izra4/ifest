@@ -56,7 +56,9 @@ func (s *Server) Initialize() {
 	docs.Get("/download", s.userDocsHandler.Download)
 	docs.Get("/detail/:id", middleware.Authentication(), s.docsHandler.GetByID)
 	docs.Get("/all", middleware.Authentication(), s.docsHandler.GetAll)
+	docs.Get("/unverified", middleware.Authentication(), s.docsHandler.GetUnverifiedDocs)
 	docs.Get("/history", middleware.Authentication(), s.userDocsHandler.GetHistoryByUserID)
+	docs.Put("/update/:id", middleware.Authentication(), s.docsHandler.Update)
 
 	access.Post("/:id", middleware.Authentication(), s.userDocsHandler.Create)
 	access.Delete("/delete", middleware.Authentication(), s.userDocsHandler.DeleteAccess)
