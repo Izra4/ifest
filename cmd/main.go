@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	//err := config.LoadEnv()
-	//if err != nil {
-	//	return
-	//}
+	err := config.LoadEnv()
+	if err != nil {
+		return
+	}
 	db, err := config.ConnectDB()
 	if err != nil {
 		return

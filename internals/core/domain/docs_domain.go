@@ -60,3 +60,11 @@ type AcessDeleteRequest struct {
 	DocID     string `json:"doc_id" validate:"required"`
 	AcessorID string `json:"accessor_id" validate:"required"`
 }
+
+type UnverifiedDocs struct {
+	ID     string    `json:"id"`
+	Name   string    `json:"name"`
+	Type   string    `json:"type"`
+	Number string    `json:"number"`
+	Date   time.Time `json:"date"`
+}

@@ -189,5 +189,24 @@ func (dh *DocHandler) GetUnverifiedDocs(c *fiber.Ctx) error {
 		return helpers.HttpNotFound(c, "docs not found")
 	}
 
-	return helpers.HttpSuccess(c, "success to get data", 200, docs)
+	var unverifiedDocs []domain.UnverifiedDocs
+	for _, list := range docs {
+
+		decodedNumber, err := base64.StdEncoding.DecodeString(list.Number)
+		if err != nil {
+			return helpers.HttpsInternalServerError(c, "Failed to decode", err)
+		}
+
+		decryptedNumber, err := helpers.Decrypt(decodedNumber)
+
+		unverifiedDocs = append(unverifiedDocs, domain.UnverifiedDocs{
+			ID:     list.ID.String(),
+			Name:   list.Name,
+			Type:   list.Type,
+			Number: string(decryptedNumber),
+			Date:   list.CreatedAt,
+		})
+	}
+
+	return helpers.HttpSuccess(c, "success to get data", 200, unverifiedDocs)
 }
