@@ -52,6 +52,7 @@ func (s *Server) Initialize() {
 	docs.Get("/download", s.userDocsHandler.Download)
 	docs.Get("/detail/:id", middleware.Authentication(), s.docsHandler.GetByID)
 	docs.Get("/all", middleware.Authentication(), s.docsHandler.GetAll)
+	docs.Get("/history", middleware.Authentication(), s.userDocsHandler.GetHistoryByUserID)
 
 	access.Post("/:id", middleware.Authentication(), s.userDocsHandler.Create)
 
@@ -59,8 +60,6 @@ func (s *Server) Initialize() {
 		return c.SendString("Hello, World!\nTesting the jenkins here")
 	})
 	app.Get("/email", s.userDocsHandler.TestEmail)
-
-	app.Get("/history", middleware.Authentication(), s.userDocsHandler.GetHistoryByUserID)
 
 	go func() {
 		if err := app.Listen(":3000"); err != nil {
