@@ -32,7 +32,7 @@ func NewUserDocService(userDocRepository repositories.IUserDocRepository) *UserD
 
 func (u *UserDocService) Create(userID, docID uuid.UUID, email, name string) (domain.AccessReq, error) {
 	token := uuid.New().String()
-	expiredAt := time.Now().Add(time.Minute * 2)
+	expiredAt := time.Now().Add(time.Minute * 30)
 
 	req := domain.AccessReq{
 		DocID:      docID,

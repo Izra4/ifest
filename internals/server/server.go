@@ -60,6 +60,8 @@ func (s *Server) Initialize() {
 	})
 	app.Get("/email", s.userDocsHandler.TestEmail)
 
+	app.Get("/history", middleware.Authentication(), s.userDocsHandler.GetHistoryByUserID)
+
 	go func() {
 		if err := app.Listen(":3000"); err != nil {
 			log.Fatalln("Server error: ", err)

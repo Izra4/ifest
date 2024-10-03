@@ -28,6 +28,7 @@ type DocumentAccessInfo struct {
 	DocumentID     uuid.UUID `json:"id" db:"document_id"`
 	UserID         uuid.UUID `json:"user_id" db:"user_id"`
 	DocumentName   string    `json:"-" db:"document_name"`
+	DocumentNumber string    `json:"-" db:"document_number"`
 	DocumentType   string    `json:"type" db:"document_type"`
 	DocumentStatus int       `json:"status" db:"document_status"`
 	AccessCount    int       `json:"user_count" db:"access_count"`
@@ -40,4 +41,11 @@ type AccessReq struct {
 	UserID     uuid.UUID `json:"user_id" validate:"required" db:"user_id"`
 	Token      string    `json:"token" validate:"required" db:"token"`
 	Expired_at time.Time `json:"expired_at" validate:"required" db:"expired_at"`
+}
+
+type AccessHistory struct {
+	AccessorName string    `json:"accessor_name"`
+	Type         string    `json:"type"`
+	Number       string    `json:"number"`
+	AccessTime   time.Time `json:"access_time"`
 }

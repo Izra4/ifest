@@ -1,11 +1,13 @@
 package main
 
 import (
+	"IFEST/internals/blockchain"
 	"IFEST/internals/config"
 	"IFEST/internals/handlers"
 	"IFEST/internals/repositories"
 	"IFEST/internals/server"
 	"IFEST/internals/services"
+	"log"
 )
 
 func main() {
@@ -17,6 +19,13 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	bc, err := blockchain.LoadFromFile("blockchain.json")
+	if err != nil {
+		log.Fatalf("Gagal memuat blockchain: %v", err)
+		return
+	}
+
 	userRepository := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepository)
 	userHandler := handlers.NewUserHandler(userService)
@@ -27,7 +36,7 @@ func main() {
 
 	userDocsRepository := repositories.NewUserDocRepository(db)
 	userDocsService := services.NewUserDocService(userDocsRepository)
-	userDocsHandler := handlers.NewUserDocHandler(userDocsService, userService, docsService)
+	userDocsHandler := handlers.NewUserDocHandler(userDocsService, userService, docsService, bc)
 
 	cronJob := handlers.NewCronJob(userDocsService)
 
