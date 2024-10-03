@@ -44,8 +44,15 @@ type AccessReq struct {
 }
 
 type AccessHistory struct {
+	AcessorID    string    `json:"acessor_id"`
+	DocID        string    `json:"doc_id"`
 	AccessorName string    `json:"accessor_name"`
 	Type         string    `json:"type"`
 	Number       string    `json:"number"`
 	AccessTime   time.Time `json:"access_time"`
+}
+
+type AcessDeleteRequest struct {
+	DocID     string `json:"doc_id" validate:"required"`
+	AcessorID string `json:"accessor_id" validate:"required"`
 }
