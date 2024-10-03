@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"IFEST/internals/core/domain"
+	"database/sql"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -11,7 +13,8 @@ type IDocsRepository interface {
 	Upload(docs domain.Docs) (domain.Docs, error)
 	FindByID(id string) (domain.DocumentAccessInfo, error)
 	FindByUserID(id string) ([]domain.Docs, error)
-	Update(id uuid.UUID, data domain.DocsUpdateRequest) error
+	UpdateStatus(id uuid.UUID, status int) error
+	GetAllDocsByStatus(status int) ([]domain.Docs, error)
 }
 
 type DocsRepository struct {
@@ -91,31 +94,29 @@ func (dr *DocsRepository) FindByUserID(id string) ([]domain.Docs, error) {
 	return data, err
 }
 
-func (dr *DocsRepository) Update(id uuid.UUID, data domain.DocsUpdateRequest) error {
-	query := `
-		UPDATE documents 
-		SET 
-			name = :name,
-			type = :type,
-			status = :status,
-			number = :number,
-			updated_at = CURRENT_TIMESTAMP
-		WHERE id = :id
-		RETURNING id, user_id, name, type, status, number, created_at, updated_at
-	`
-	data.ID = id
+func (r *DocsRepository) UpdateStatus(id uuid.UUID, status int) error {
+	query := `UPDATE documents SET status = $1, updated_at = NOW() WHERE id = $2`
 
-	res, err := dr.db.NamedQuery(query, &data)
+	result, err := r.db.Exec(query, status, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update status: %w", err)
 	}
 
-	if res.Next() {
-		err = res.StructScan(&data)
-		if err != nil {
-			return err
-		}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
 	}
 
 	return nil
+}
+
+func (r *DocsRepository) GetAllDocsByStatus(status int) ([]domain.Docs, error) {
+	query := `SELECT * FROM documents WHERE status = $1`
+	var data []domain.Docs
+	err := r.db.Select(&data, query, status)
+	return data, err
 }

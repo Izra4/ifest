@@ -13,19 +13,20 @@ import (
 	storage_go "github.com/supabase-community/storage-go"
 	"io"
 	"log"
-	"strconv"
 	"strings"
 )
 
 type DocHandler struct {
-	docService services.IDocsService
-	validator  *validator.Validate
+	docService  services.IDocsService
+	userService services.IUserService
+	validator   *validator.Validate
 }
 
-func NewDocHandler(docService services.IDocsService) DocHandler {
+func NewDocHandler(docService services.IDocsService, userService services.IUserService) DocHandler {
 	return DocHandler{
-		docService: docService,
-		validator:  validator.New(),
+		docService:  docService,
+		userService: userService,
+		validator:   validator.New(),
 	}
 }
 
@@ -139,73 +140,54 @@ func (dh *DocHandler) GetByID(c *fiber.Ctx) error {
 }
 
 func (dh *DocHandler) Update(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(string)
-	if userID == "" {
+
+	userIDStr := c.Locals("userID").(string)
+
+	user, err := dh.userService.GetByID(userIDStr)
+	if err != nil {
 		return helpers.HttpUnauthorized(c, "unauthorized")
 	}
 
-	docIDStr := c.Params("id")
-	if docIDStr == "" {
-		return helpers.HttpBadRequest(c, "document id is required", nil)
+	if user.Role != "admin" {
+		return helpers.HttpUnauthorized(c, "unauthorized: not an admin")
 	}
-
-	doc, err := dh.docService.FindByID(docIDStr)
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
 	if err != nil {
-		return helpers.HttpNotFound(c, "document not found")
+		return helpers.HttpsInternalServerError(c, "failed to parse id", err)
 	}
 
-	var data domain.DocsUpdateRequest
-	if err := c.BodyParser(&data); err != nil {
-		return helpers.HttpBadRequest(c, "failed to parse request body", err)
+	var req domain.UpdateStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helpers.HttpBadRequest(c, "failed to bind request", err)
 	}
 
-	if err := dh.validator.Struct(data); err != nil {
-		var errors []string
-		for _, errs := range err.(validator.ValidationErrors) {
-			errors = append(errors, helpers.FormatValidationError(errs))
-		}
-		return helpers.HttpBadRequest(c, "failed to binding request", errors)
+	if err := dh.docService.UpdateStatus(id, req.Status); err != nil {
+		return helpers.HttpsInternalServerError(c, "failed to update status", err)
 	}
-	docID, err := uuid.Parse(docIDStr)
+
+	return helpers.HttpSuccess(c, "succes to update", 200, nil)
+}
+
+func (dh *DocHandler) GetUnverifiedDocs(c *fiber.Ctx) error {
+	userIDStr := c.Locals("userID").(string)
+	if userIDStr == "" {
+		return helpers.HttpUnauthorized(c, "unauthorized")
+	}
+
+	user, err := dh.userService.GetByID(userIDStr)
 	if err != nil {
-		return helpers.HttpsInternalServerError(c, "failed to parse document id", err)
+		return helpers.HttpNotFound(c, "user not found")
 	}
 
-	if data.Name == "" {
-		data.Name = doc.DocumentName
-	}
-	if data.Type == "" {
-		data.Number = doc.DocumentType
+	if user.Role != "admin" {
+		return helpers.HttpUnauthorized(c, "unauthorized: not an admin")
 	}
 
-	parsedDocStatus := strconv.Itoa(doc.DocumentStatus)
-
-	if data.Status == "" {
-		data.Status = parsedDocStatus
-	}
-
-	if data.Number == "" {
-		data.Number = doc.DocumentNumber
-	} else {
-		encrypt, err := helpers.Encrypt([]byte(data.Number))
-		if err != nil {
-			return helpers.HttpsInternalServerError(c, "failed to encrypt document number", err)
-		}
-		data.Number = base64.StdEncoding.EncodeToString(encrypt)
-	}
-
-	dataInput := domain.DocsUpdateRequest{
-		ID:     doc.DocumentID,
-		Name:   data.Name,
-		Type:   data.Type,
-		Status: data.Status,
-		Number: data.Number,
-	}
-
-	err = dh.docService.Update(docID, dataInput)
+	docs, err := dh.docService.GetAllDocsByStatus(0)
 	if err != nil {
-		return helpers.HttpsInternalServerError(c, "failed to update document", err)
+		return helpers.HttpNotFound(c, "docs not found")
 	}
 
-	return helpers.HttpSuccess(c, "document updated successfully", 200, nil)
+	return helpers.HttpSuccess(c, "success to get data", 200, docs)
 }

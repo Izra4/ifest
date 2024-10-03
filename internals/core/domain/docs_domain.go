@@ -17,12 +17,8 @@ type Docs struct {
 	UserCount int       `json:"user_count" db:"user_count"`
 }
 
-type DocsUpdateRequest struct {
-	ID     uuid.UUID `json:"id" db:"id"`
-	Name   string    `json:"name" validate:"required" db:"name"`
-	Type   string    `json:"type" validate:"required" db:"type"`
-	Status string    `json:"status" validate:"required" db:"status"`
-	Number string    `json:"number" validate:"required" db:"number"`
+type UpdateStatusRequest struct {
+	Status int `json:"status" validate:"required"`
 }
 
 type DocsUpload struct {

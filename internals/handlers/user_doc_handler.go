@@ -55,6 +55,15 @@ func (udh *UserDocHandler) Create(c *fiber.Ctx) error {
 	emailInput := c.FormValue("email")
 	docsIDStr := c.Params("id")
 
+	docData, err := udh.docService.FindByID(docsIDStr)
+	if err != nil {
+		return helpers.HttpNotFound(c, "document not found")
+	}
+
+	if docData.DocumentStatus == 0 || docData.DocumentStatus == -1 {
+		return helpers.HttpBadRequest(c, "document is not approved / rejected", nil)
+	}
+
 	docsID, err := uuid.Parse(docsIDStr)
 
 	userAdded, err := udh.userService.GetByEmail(emailInput)
