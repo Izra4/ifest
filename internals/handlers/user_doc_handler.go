@@ -8,6 +8,7 @@ import (
 	"IFEST/internals/core/domain"
 	"IFEST/internals/services"
 	"encoding/base64"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"log"
@@ -24,6 +25,7 @@ type UserDocHandler struct {
 	processedTokens map[string]time.Time
 	tokenMutex      sync.Mutex
 	tokenTTL        time.Duration
+	validate        *validator.Validate
 }
 
 func NewUserDocHandler(userDocService services.IUserDocService, userService services.IUserService,
@@ -35,6 +37,7 @@ func NewUserDocHandler(userDocService services.IUserDocService, userService serv
 		blockchain:      bc,
 		processedTokens: make(map[string]time.Time),
 		tokenTTL:        10 * time.Second,
+		validate:        validator.New(),
 	}
 }
 
@@ -161,6 +164,8 @@ func (udh *UserDocHandler) GetHistoryByUserID(c *fiber.Ctx) error {
 		}
 
 		histories = append(histories, domain.AccessHistory{
+			AcessorID:    history.AccessorID,
+			DocID:        history.DocID,
 			AccessorName: accessor.Name,
 			Type:         docs.DocumentType,
 			Number:       string(decryptedNumber),
@@ -169,6 +174,44 @@ func (udh *UserDocHandler) GetHistoryByUserID(c *fiber.Ctx) error {
 	}
 
 	return helpers.HttpSuccess(c, "history retrieved successfully", 200, histories)
+}
+
+func (udh *UserDocHandler) DeleteAccess(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	if userID == "" {
+		return helpers.HttpUnauthorized(c, "unauthorized")
+	}
+
+	var deleteRequest domain.AcessDeleteRequest
+	if err := c.BodyParser(&deleteRequest); err != nil {
+		return helpers.HttpBadRequest(c, err.Error())
+	}
+
+	if err := udh.validate.Struct(deleteRequest); err != nil {
+		var errors []string
+		for _, errs := range err.(validator.ValidationErrors) {
+			errors = append(errors, helpers.FormatValidationError(errs))
+		}
+		log.Println(deleteRequest.DocID)
+		log.Println(deleteRequest.AcessorID)
+		return helpers.HttpBadRequest(c, "failed to binding request", errors)
+	}
+
+	parsedAcessorID, err := uuid.Parse(deleteRequest.AcessorID)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "Failed to delete access", err)
+	}
+
+	parsedDocID, err := uuid.Parse(deleteRequest.DocID)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "Failed to delete access", err)
+	}
+
+	err = udh.userDocService.DeleteAccessByUserID(parsedAcessorID, parsedDocID)
+	if err != nil {
+		return helpers.HttpsInternalServerError(c, "Failed to delete access", err)
+	}
+	return helpers.HttpSuccess(c, "success to delete the access", 200, nil)
 }
 
 func (udh *UserDocHandler) TestEmail(c *fiber.Ctx) error {

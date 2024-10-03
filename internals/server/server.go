@@ -55,6 +55,7 @@ func (s *Server) Initialize() {
 	docs.Get("/history", middleware.Authentication(), s.userDocsHandler.GetHistoryByUserID)
 
 	access.Post("/:id", middleware.Authentication(), s.userDocsHandler.Create)
+	access.Delete("/delete", middleware.Authentication(), s.userDocsHandler.DeleteAccess)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!\nTesting the jenkins here")
