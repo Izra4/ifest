@@ -12,7 +12,7 @@ type IUserDocRepository interface {
 	FindByDocID(docID uuid.UUID) ([]domain.User, error)
 	FindByToken(token string) (domain.AccessReq, error)
 	DeleteAccessByToken(token string) error
-	DeleteAccessByUserID(id uuid.UUID) error
+	DeleteAccessByUserID(userID, docID uuid.UUID) error
 	DeleteExpired() error
 }
 
@@ -92,12 +92,12 @@ func (u *UserDocRepository) DeleteAccessByToken(token string) error {
 	return err
 }
 
-func (u *UserDocRepository) DeleteAccessByUserID(id uuid.UUID) error {
+func (u *UserDocRepository) DeleteAccessByUserID(userID, docID uuid.UUID) error {
 	query := `
 		DELETE FROM user_doc_access
-		WHERE user_id = $1
+		WHERE user_id = $1 AND doc_id = $2
 	`
-	_, err := u.db.Exec(query, id)
+	_, err := u.db.Exec(query, userID, docID)
 	return err
 }
 
