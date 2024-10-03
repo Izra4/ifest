@@ -197,11 +197,16 @@ func (dh *DocHandler) GetUnverifiedDocs(c *fiber.Ctx) error {
 			return helpers.HttpsInternalServerError(c, "Failed to decode", err)
 		}
 
+		user, err := dh.userService.GetByID(list.UserID.String())
+		if err != nil {
+			return helpers.HttpsInternalServerError(c, "failed to get user", err)
+		}
+
 		decryptedNumber, err := helpers.Decrypt(decodedNumber)
 
 		unverifiedDocs = append(unverifiedDocs, domain.UnverifiedDocs{
 			ID:     list.ID.String(),
-			Name:   list.Name,
+			Name:   user.Name,
 			Type:   list.Type,
 			Number: string(decryptedNumber),
 			Date:   list.CreatedAt,
